@@ -1,14 +1,14 @@
 import MovieCard from "../movieCard/MovieCard";
-
+import './movieList.css'
 type movieListPropType = {
-  releaseYear: number;
   data: Record<string, any>[];
 };
 const MoviesList = (props: movieListPropType) => {
-  const { releaseYear, data } = props;
+  const { data } = props;
+  const yearOfRelease = data[0].release_date.slice(0,4);
   return (
     <div className="movie-list__parent">
-      <p>{releaseYear}</p>
+      <p>{yearOfRelease}</p>
       <div className="movie-list">
         {data.map((item: Record<string, any>) => {
           return <MovieCard {...item} />;

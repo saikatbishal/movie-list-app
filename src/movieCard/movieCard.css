@@ -1,0 +1,34 @@
+.card-parent{
+    position: relative;
+        width: max-content;
+        height: max-content;
+        overflow: hidden;
+        border-radius: 10px;
+}
+.title-card{
+    position: absolute;
+    padding: 10px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(7, 72, 177, 0.3);
+    color: white;
+    display: "flex";
+    justify-content: "space-between";
+    align-items: "center";
+    transition: "opacity 0.3s ease";
+}
+img {
+    width: 100%;
+    height: auto;
+    max-width: 100%;
+}
+
+.hovered{
+     visibility:  "visible" ;
+     background-color: inherit;
+}
+.full{
+    height:100%;
+    width:100%;
+}

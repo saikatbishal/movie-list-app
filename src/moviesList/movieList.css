@@ -1,0 +1,11 @@
+.movie-list {
+    margin: 10px;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(50px,1fr));
+    grid-gap: 10px;
+    max-width: 100%;
+}
+
+p{
+    color: white;
+}

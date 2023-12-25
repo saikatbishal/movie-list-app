@@ -1,32 +1,56 @@
-import { IMAGE_BASE_URL } from '../constants/base_urls'
-const MovieCard = ({title,poster_path}:any) => {
-  const DUMMY_DATA = [
-    {
-      adult: false,
-      backdrop_path: "/vG6JxKspnlub1Ue3xhktOtE5FVJ.jpg",
-      genre_ids: [35, 18],
-      id: 87428,
-      original_language: "en",
-      original_title: "That's My Boy",
-      overview:
-        "While in his teens, Donny fathered a son, Todd, and raised him as a single parent up until Todd's 18th birthday. Now, after not seeing each other for years, Todd's world comes crashing down when Donny resurfaces just before Todd's wedding.",
-      popularity: 45.588,
-      poster_path: "/oVCsANNQyw1AjRhQ9edFBM8HVCq.jpg",
-      release_date: "2012-06-14",
-      title: "That's My Boy",
-      video: false,
-      vote_average: 5.8,
-      vote_count: 1782,
-    },
-  ];
+import { useState } from "react";
+import { IMAGE_BASE_URL } from "../constants/base_urls";
+import "./movieCard.css";
+const MovieCard = ({
+  title,
+  poster_path,
+  release_date,
+  overview,
+  backdrop_path,
+  vote_average,
+  vote_count,
+}: any) => {
+  const [isHovered, setIsHovered] = useState<boolean>(false);
+
+  const handleMouseEnter = () => {
+    setIsHovered(true);
+  };
+
+  const handleMouseLeave = () => {
+    setIsHovered(false);
+  };
+  
   /**
    * movie title, image, genre, cast, director, and a short description
    */
   return (
-    <div>
-        <img src = {`${IMAGE_BASE_URL}${poster_path}`} alt={title}/>
-    </div>
-  )
-}
+    <div
+      className="card-parent"
+      onMouseEnter={handleMouseEnter}
+      onMouseLeave={handleMouseLeave}
+      role="menuitem"
+    >
+      <img
+        src={`${IMAGE_BASE_URL}${backdrop_path}`}
+        alt={title}
+      />
 
-export default MovieCard
+      <div className={`title-card`}>
+        <div>
+          <h3>{title}</h3>
+          <p>{release_date}</p>
+          <p>Rating: {vote_average}</p>
+        </div>
+      </div>
+
+      {isHovered && (
+        <div className="title-card full">
+            <h4>Description:</h4>
+            <p>{overview}</p>
+        </div>
+      )}
+    </div>
+  );
+};
+
+export default MovieCard;

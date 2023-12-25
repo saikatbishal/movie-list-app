@@ -1,0 +1,15 @@
+.searchbox-container{
+    display: flex;
+    margin: 10px;
+    width:fit-content;
+    background: white;
+    justify-content: space-between;
+    align-items: center;
+}
+.search-input{
+    padding: 4px;
+    font-size: 16px;
+    border: none;
+    border-radius: 2px;
+
+}
