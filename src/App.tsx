@@ -17,12 +17,11 @@ function App() {
   const [query, setQuery] = useState("");
   const [selectedGenre, setSelectedGenre] = useState<number[]>([1]);
   const [selectedYears, setSelectedYears] = useState(primaryReleaseYear);
-
+  const [scrollDirection, setScrollDirection] = useState<"UP"|"DOWN"|"">("")
   const intialParams = [
     { vote_count_gte: 100 },
     { sort_by: "popularity.desc" },
     { api_key: API_KEY },
-    { primary_release_year: primaryReleaseYear },
   ];
   const initialSelectedGenre = { id: 1, name: "All" };
   const containerRef = useRef<HTMLDivElement>(null);
@@ -35,7 +34,8 @@ function App() {
       setError(true);
     }
   }
-  function handleScroll(prop: "UP" | "DOWN") {
+  function handleScroll(prop: "UP" | "DOWN") { 
+    setScrollDirection(prop);
     switch (prop) {
       case "UP":
         let tempYearArray = [...selectedYears];
@@ -43,18 +43,51 @@ function App() {
         setSelectedYears(tempYearArray);
         break;
       case "DOWN":
-        tempYearArray = [...selectedYears];
-        tempYearArray.push(tempYearArray[tempYearArray.length - 1] + 1);
-        setSelectedYears(tempYearArray);
+        let tempYearArray2 = [...selectedYears];
+        tempYearArray2.push(tempYearArray2[tempYearArray2.length - 1] + 1);
+        setSelectedYears(tempYearArray2);
         break;
       default:
         console.log("undefined action");
+        setScrollDirection("");
     }
   }
   async function fetchScrollData() {
+    let data : dataType;
+    try{
+      const params = new URLSearchParams();
+      intialParams.forEach((each:Record<string,any>) => {
+        for (const key in each) params.append(key, each[key]);
+      });
+      params.append("with_text_query", query);
+      params.append(
+        "with_genres",
+        selectedGenre[0] === 1 && selectedGenre.length === 1
+          ? ""
+          : selectedGenre.join("|")
+      );
+      if(scrollDirection==="UP"){
+        params.append("primary_release_year",selectedYears[0].toString())
+      }
+      else if(scrollDirection === "DOWN")
+      {
+        params.append("primary_release_year", selectedYears[selectedYears.length-1].toString())
+      }
+      const result = await fetch(`${BASE_URL}?${params}`);
+      data = await result.json();
+      if(scrollDirection === "UP"){
+        setMoviesData(c=>[data.results,...c])
+      }
+      else if(scrollDirection === "DOWN"){
+        setMoviesData(c=>[...c,data.results]);
+      }
+    }
+    catch(err){
 
+    }
   }
   async function fetchData() {
+    setSelectedYears([2012]);
     let data: dataType;
     try {
       const params = new URLSearchParams();
@@ -62,6 +95,8 @@ function App() {
         for (const key in each) params.append(key, each[key]);
       });
       params.append("with_text_query", query);
+      params.append("primary_release_year",'2012');
+
       params.append(
         "with_genres",
         selectedGenre[0] === 1 && selectedGenre.length === 1
