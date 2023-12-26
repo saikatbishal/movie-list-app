@@ -13,7 +13,7 @@ export type moviesListType = {
     video: boolean;
     vote_average: number;
     vote_count: number;
-  }[][];
+  }[];
   export type dataType = {
     page:number
     results: moviesListType;

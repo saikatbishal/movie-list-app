@@ -7,97 +7,110 @@ import HorizontalScroll from "./horizontalScroll/HorizontalScroll";
 import MoviesList from "./moviesList/MoviesList";
 import SearchBox from "./searchBox/SearchBox";
 import { moviesListType, dataType } from "./types/moviesListType";
+import { API_KEY } from "./constants/API_KEY";
+
 function App() {
-  const [moviesData, setMoviesData] = useState<moviesListType>([]);
-  // to store the data
-  const [movieReleaseYears, setMovieReleaseYears] = useState<number[]>([2012]);
-  // fetch the movies data if this state changes, also keep track of the years whose best 20 movies have been fetched
-  const [selectedGenre, setSelectedGenre] = useState<number>(1);
-  // for selecting genre and fetching the desired data
-  const [genreList, setGenreList] = useState<any[]>([]);
-  // for fetching the list of genre (all functionality done)
-  const [isLastYear, setIsLastYear] = useState<null | boolean>(null);
-  // for choosing how to mutate the movies data after fetching
+  const primaryReleaseYear = [2012];
+  const [moviesData, setMoviesData] = useState<moviesListType[]>([]); // fetch data
+  const [genreList, setGenreList] = useState<any[]>([]); // fetch data
+  const [error, setError] = useState<boolean>(false); 
+  const [query, setQuery] = useState("");
+  const [selectedGenre, setSelectedGenre] = useState<number[]>([1]);
+  const [selectedYears, setSelectedYears] = useState(primaryReleaseYear);
+
+  const intialParams = [
+    { vote_count_gte: 100 },
+    { sort_by: "popularity.desc" },
+    { api_key: API_KEY },
+    { primary_release_year: primaryReleaseYear },
+  ];
   const initialSelectedGenre = { id: 1, name: "All" };
   const containerRef = useRef<HTMLDivElement>(null);
 
-
   async function handleGenreList() {
-    const list = await getGenreList();
-    setGenreList([initialSelectedGenre, ...list.genres]);
+    try {
+      const list = await getGenreList();
+      setGenreList([initialSelectedGenre, ...list.genres]);
+    } catch {
+      setError(true);
+    }
   }
-  function handleUp() {
-    setIsLastYear(false);
-    const prevReleaseYear = movieReleaseYears[0] - 1;
-    setMovieReleaseYears((originalYearArray) => [
-      prevReleaseYear,
-      ...originalYearArray,
-    ]);
+  function handleScroll(prop: "UP" | "DOWN") {
+    switch (prop) {
+      case "UP":
+        let tempYearArray = [...selectedYears];
+        tempYearArray.unshift(tempYearArray[0] - 1);
+        setSelectedYears(tempYearArray);
+        break;
+      case "DOWN":
+        tempYearArray = [...selectedYears];
+        tempYearArray.push(tempYearArray[tempYearArray.length - 1] + 1);
+        setSelectedYears(tempYearArray);
+        break;
+      default:
+        console.log("undefined action");
+    }
   }
-  function handleDown() {
-    setIsLastYear(true);
-    const nextReleaseYear = movieReleaseYears[movieReleaseYears.length - 1] + 1;
-    setMovieReleaseYears((originalYearArray) => [
-      ...originalYearArray,
-      nextReleaseYear,
-    ]);
-  }
+  async function fetchScrollData() {
 
-  async function fetchData(newYear: number) {
+  }
+  async function fetchData() {
     let data: dataType;
     try {
-      const result = await fetch(`${BASE_URL}&primary_release_year=${newYear}`);
+      const params = new URLSearchParams();
+      intialParams.forEach((each:Record<string,any>) => {
+        for (const key in each) params.append(key, each[key]);
+      });
+      params.append("with_text_query", query);
+      params.append(
+        "with_genres",
+        selectedGenre[0] === 1 && selectedGenre.length === 1
+          ? ""
+          : selectedGenre.join("|")
+      );
+      const result = await fetch(`${BASE_URL}?${params}`);
+
       data = await result.json();
-      if (isLastYear) {
-        setMoviesData((c: any) => [...c, data.results]);
-      } else {
-        setMoviesData((c: any) => [data.results, ...c]);
-      }
+      setMoviesData([data.results]);
     } catch (err) {
       console.log(err);
     }
   }
 
   useEffect(() => {
-    if (isLastYear) {
-      fetchData(movieReleaseYears[movieReleaseYears.length - 1]);
-    } else {
-      fetchData(movieReleaseYears[0]);
-    }
-  }, [movieReleaseYears,isLastYear]);
-
+    fetchData();
+  }, [query, selectedGenre]);
+  useEffect(() => {
+    fetchScrollData();
+  }, [selectedYears]);
   useEffect(() => {
     handleGenreList();
   }, []);
   return (
     <div className="App">
-      <HorizontalScroll
-        selectedGenre={selectedGenre}
-        setSelectedGenre={setSelectedGenre}
-        items={genreList}
-      />
-      <SearchBox />
-      <button onClick={() => handleUp()}>Up</button>
-      <div className="movies-container" ref={containerRef}>
-        {moviesData.map((data: any) => {
-        return <MoviesList data={data} />;
-      })}
-      </div>
-      
-
-      <button onClick={() => handleDown()}>Down</button>
+      {!error ? (
+        <HorizontalScroll
+          selectedGenre={selectedGenre}
+          setSelectedGenre={setSelectedGenre}
+          items={genreList}
+        />
+      ) : (
+        <div>Failed to fetch Genres</div>
+      )}
+      <SearchBox query={query} setQuery={setQuery} />
+      <button onClick={() => handleScroll("UP")}>Scroll Up</button>
+      {moviesData.length === 0 ? (
+        <div>No Data found</div>
+      ) : (
+        <div className="movies-container" ref={containerRef}>
+          {moviesData.map((data: any) => {
+            return <MoviesList data={data} />;
+          })}
+        </div>
+      )}
+      <button onClick={() => handleScroll("DOWN")}>Scroll Down</button>
     </div>
   );
 }
 
 export default App;
-
-// if 'UP' is clicked                                           if 'DOWN' is clicked
-/**
- * 1. unshift the array enter firstInteger-1 to the 0th index     1. push lastInteger + 1 to the nth index
- * 2. fetch for 0th index                                         2. fetch for the nth index
- * 3. setData([newData,...initialData])                           3. setData([...initialData, newData])
- *
- * 
- * this should be changed to lazy loading (infinite scrolling)
- */

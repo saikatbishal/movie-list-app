@@ -1,10 +1,15 @@
-import React from 'react'
 import { FaSearch } from "react-icons/fa";
 import './searchBox.css'
-const SearchBox = () => {
+type searchBoxType={
+  query:string,
+  setQuery: (query:string)=>void
+}
+const SearchBox = ({query, setQuery}:searchBoxType) => {
   return (
     <div className='searchbox-container'>
-        <input type="text" className="search-input"  placeholder='Search Movies'/>
+        <input type="text" className="search-input"  placeholder='Search Movies' value = {query}
+        onChange={(e)=>setQuery(e.target.value)}
+        />
         <FaSearch id="search-icon"/>
     </div>
   )
