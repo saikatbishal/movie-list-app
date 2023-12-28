@@ -46,7 +46,7 @@ const MovieCard = ({
       {isHovered && (
         <div className="title-card full">
             <h4>Description:</h4>
-            <p>{overview}</p>
+            <p>{overview.slice(0,100)}</p>
         </div>
       )}
     </div>

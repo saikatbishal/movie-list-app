@@ -111,10 +111,10 @@ function App() {
       console.log(err);
     }
   }
-
   useEffect(() => {
     fetchData();
   }, [query, selectedGenre]);
+
   useEffect(() => {
     fetchScrollData();
   }, [selectedYears]);
