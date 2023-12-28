@@ -31,7 +31,7 @@ const MovieCard = ({
       role="menuitem"
     >
       <img
-        src={`${IMAGE_BASE_URL}${backdrop_path}`}
+        src={`${IMAGE_BASE_URL}${poster_path}`}
         alt={title}
       />
 

@@ -6,7 +6,7 @@ type searchBoxType={
 }
 const SearchBox = ({query, setQuery}:searchBoxType) => {
   return (
-    <div className='searchbox-container'>
+    <div className='input-wrapper'>
         <input type="text" className="search-input"  placeholder='Search Movies' value = {query}
         onChange={(e)=>setQuery(e.target.value)}
         />
