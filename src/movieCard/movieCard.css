@@ -1,9 +1,10 @@
 .card-parent{
     position: relative;
-        width: max-content;
+        width: 80%;
         height: max-content;
         overflow: hidden;
         border-radius: 10px;
+        justify-self: center;
 }
 .title-card{
     position: absolute;
@@ -17,6 +18,19 @@
     justify-content: "space-between";
     align-items: "center";
     transition: "opacity 0.3s ease";
+    z-index: 2;
+}
+@media (max-width: 730px) {
+    .card-parent {
+        width: 70%; 
+        height: auto; 
+    }
+
+    .title-card {
+        padding: 5px; 
+    }
+
+    
 }
 img {
     width: 100%;
@@ -29,6 +43,21 @@ img {
      background-color: inherit;
 }
 .full{
+    
+}
+.description-card{
+    position: absolute;
+    padding: 10px;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    background: rgba(0, 0, 0, 0.6);
+    color: white;
+    display: "flex";
+    justify-content: "space-between";
+    align-items: "center";
+    transition: "opacity 0.3s ease";
     height:100%;
     width:100%;
+    z-index: 1;
 }
