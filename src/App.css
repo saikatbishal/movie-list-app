@@ -1,0 +1,15 @@
+.App{
+    height: max-content;
+    width: 100vw;
+    padding: 20px;
+    font-family: 'Gill Sans', 'Gill Sans MT', Calibri, 'Trebuchet MS', sans-serif;
+}
+button{
+    padding: 5px 20px;
+    margin: 10px;
+}
+
+h1,h2,h3,h4,h5,h6,div,p{
+    background-color: transparent;
+    color:white
+}

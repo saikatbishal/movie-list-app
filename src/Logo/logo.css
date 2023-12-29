@@ -1,0 +1,19 @@
+
+.logo{
+    color: red;
+    font-family: fantasy;
+}
+
+.logo-large{
+    font-size: 6vw;
+}
+.logo-small{
+    font-size: 8vw;
+}
+
+.logo-container{
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+}
