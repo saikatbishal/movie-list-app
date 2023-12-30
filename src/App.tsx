@@ -9,10 +9,9 @@ import SearchBox from "./searchBox/SearchBox";
 import { moviesListType, dataType } from "./types/moviesListType";
 import Logo from "./Logo/Logo";
 
-const API_KEY = process.env.REACT_APP_API_KEY; 
+const API_KEY = process.env.REACT_APP_API_KEY;
 
 function App() {
-  // const primaryReleaseYear = [2012];
   const [moviesData, setMoviesData] = useState<moviesListType[]>([]); // fetch data
   const [genreList, setGenreList] = useState<Record<string, any>[]>([]); // fetch data
   const [error, setError] = useState<Record<string, boolean>>({
@@ -21,7 +20,6 @@ function App() {
   });
   const [query, setQuery] = useState("");
   const [debouncedQuery, setDebouncedQuery] = useState("");
-
   const [selectedGenre, setSelectedGenre] = useState<number[]>([1]);
   const [selectedYears, setSelectedYears] = useState([2012]);
   const [scrollDirection, setScrollDirection] = useState<"UP" | "DOWN" | "">(
@@ -35,9 +33,6 @@ function App() {
   ];
   const initialSelectedGenre = { id: 1, name: "All" };
   const containerRef = useRef<HTMLDivElement>(null);
-
-  // const flagRef = useRef<boolean>(false);
-  // const currentScrollPosition = useRef<number>(0);
 
   async function handleGenreList() {
     try {
@@ -83,29 +78,25 @@ function App() {
           selectedYears[selectedYears.length - 1].toString()
         );
       }
-      if (selectedYears[selectedYears.length - 1] > new Date().getFullYear())
-      {
+      if (selectedYears[selectedYears.length - 1] > new Date().getFullYear()) {
         setEndofList(true);
         return;
       }
-      console.log(params.toString());
       const result = await fetch(`${BASE_URL}?${params}`);
       data = await result.json();
       if (scrollDirection === "UP") {
-        if (data.results.length) setMoviesData((c) => [data.results, ...c]);
-        // flagRef.current = false;
-        // window.scrollTo(0, currentScrollPosition.current);
+        if (data.results.length) {
+          setMoviesData((c) => [data.results, ...c]);
+          window.scrollTo(0, 500);
+        }
       } else if (scrollDirection === "DOWN") {
         if (data.results.length) setMoviesData((c) => [...c, data.results]);
       }
     } catch (err) {
       setError((err) => ({ ...err, moviesError: true }));
-
-      console.log(err);
     }
   }
   async function fetchData() {
-    
     let data: dataType;
     try {
       const params = new URLSearchParams();
@@ -113,7 +104,7 @@ function App() {
         for (const key in each) params.append(key, each[key]);
       });
       params.append("with_text_query", query);
-      params.append("primary_release_year", "2012");
+      if (query.length === 0) params.append("primary_release_year", "2012");
 
       params.append(
         "with_genres",
@@ -126,11 +117,6 @@ function App() {
 
       data = await result.json();
       setMoviesData([data.results]);
-      params.delete("primary_release_year");
-      params.append("primary_release_year", "2013");
-      const result2 = await fetch(`${BASE_URL}?${params}`);
-      data = await result2.json();
-      setMoviesData((c) => [...c, data.results]);
     } catch (err) {
       console.log(err);
     }
@@ -148,7 +134,6 @@ function App() {
   useEffect(() => {
     setSelectedYears([2012]);
     fetchData();
-
   }, [debouncedQuery, selectedGenre]);
 
   useEffect(() => {
@@ -158,61 +143,51 @@ function App() {
   useEffect(() => {
     handleGenreList();
     window.addEventListener("scroll", () => {
-      //     setScrollPosition(document.body.offsetHeight);
-      // const scrollableHeight = document.body.offsetHeight - window.innerHeight;
-      // const savedScrollRatio = window.scrollY / scrollableHeight;
       if (window.scrollY <= 0) {
         handleScroll("UP");
-        // flagRef.current = true;
-        // currentScrollPosition.current = window.scrollY;
-        //window.scrollTo(0,scrollPosition)
       } else if (
-        window.innerHeight + window.scrollY >=
+        window.innerHeight + window.scrollY + 2 >=
         document.body.offsetHeight
       ) {
-        
         handleScroll("DOWN");
-
       }
-      // window.scrollTo(
-      //   0,
-      //   savedScrollRatio * (document.body.offsetHeight - window.innerHeight)
-      // );
     });
   }, []);
   return (
-    <div className={`App ${scrollDirection === 'UP' ? 'scroll-up' : ''}`}>
+    <div className={`App ${scrollDirection === "UP" ? "scroll-up" : ""}`}>
       <header className="header">
-      <Logo />
-      {!error.genreError ? (
-        <HorizontalScroll
-          selectedGenre={selectedGenre}
-          setSelectedGenre={setSelectedGenre}
-          items={genreList}
-        />
-      ) : (
-        <div>Failed to fetch Genres</div>
-      )}
-      <SearchBox query={query} setQuery={setQuery} />
-</header>
-<body className="body">
-   {moviesData.length===0? (
-        <div>Oops! Seems like you're out of luck.</div>
-      ) : (
-        <div className="movies-container" ref={containerRef}>
-          {
-            moviesData.map((data: Record<string, any>[]) => {
+        <Logo />
+        {!error.genreError ? (
+          <HorizontalScroll
+            selectedGenre={selectedGenre}
+            setSelectedGenre={setSelectedGenre}
+            items={genreList}
+          />
+        ) : (
+          <div>Failed to fetch Genres</div>
+        )}
+        <SearchBox query={query} setQuery={setQuery} />
+      </header>
+      <body className="body">
+        {moviesData.length === 0 ? (
+          <div>Oops! Seems like you're out of luck.</div>
+        ) : (
+          <div className="movies-container" ref={containerRef}>
+            {moviesData.map((data: Record<string, any>[]) => {
               return data.length ? (
                 <MoviesList data={data} />
               ) : (
                 <div>Seems we do not have the movie you are searching for</div>
               );
             })}
-        </div>
+          </div>
+        )}
+      </body>
+      {endOfList && (
+        <footer className="footer">
+          <h1>There's always a next year</h1>
+        </footer>
       )}
-</body>
-{endOfList&&<footer className="footer"><h1>There's always a next year</h1></footer>}
-     
     </div>
   );
 }
