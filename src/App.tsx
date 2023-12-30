@@ -7,8 +7,10 @@ import HorizontalScroll from "./horizontalScroll/HorizontalScroll";
 import MoviesList from "./moviesList/MoviesList";
 import SearchBox from "./searchBox/SearchBox";
 import { moviesListType, dataType } from "./types/moviesListType";
-import { API_KEY } from "./constants/API_KEY";
 import Logo from "./Logo/Logo";
+
+const API_KEY = process.env.REACT_APP_API_KEY; 
+
 function App() {
   // const primaryReleaseYear = [2012];
   const [moviesData, setMoviesData] = useState<moviesListType[]>([]); // fetch data
@@ -18,11 +20,14 @@ function App() {
     moviesError: false,
   });
   const [query, setQuery] = useState("");
+  const [debouncedQuery, setDebouncedQuery] = useState("");
+
   const [selectedGenre, setSelectedGenre] = useState<number[]>([1]);
   const [selectedYears, setSelectedYears] = useState([2012]);
   const [scrollDirection, setScrollDirection] = useState<"UP" | "DOWN" | "">(
     ""
   );
+  const [endOfList, setEndofList] = useState(false);
   const intialParams = [
     { vote_count_gte: 150 },
     { sort_by: "popularity.desc" },
@@ -49,7 +54,6 @@ function App() {
         setSelectedYears((arr) => [arr[0] - 1, ...arr]);
         break;
       case "DOWN":
-        if(selectedYears[selectedYears.length - 1] > new Date().getFullYear()) return;
         setSelectedYears((arr) => [...arr, arr[arr.length - 1] + 1]);
         break;
       default:
@@ -71,23 +75,22 @@ function App() {
           ? ""
           : selectedGenre.join("|")
       );
-
       if (scrollDirection === "UP") {
-        console.log("when scrolled up",selectedYears);
         params.append("primary_release_year", selectedYears[0].toString());
       } else if (scrollDirection === "DOWN") {
-        console.log("when scrolled down",selectedYears);
         params.append(
           "primary_release_year",
           selectedYears[selectedYears.length - 1].toString()
         );
       }
       if (selectedYears[selectedYears.length - 1] > new Date().getFullYear())
+      {
+        setEndofList(true);
         return;
+      }
       console.log(params.toString());
       const result = await fetch(`${BASE_URL}?${params}`);
       data = await result.json();
-      console.log(data.results);
       if (scrollDirection === "UP") {
         if (data.results.length) setMoviesData((c) => [data.results, ...c]);
         // flagRef.current = false;
@@ -96,6 +99,8 @@ function App() {
         if (data.results.length) setMoviesData((c) => [...c, data.results]);
       }
     } catch (err) {
+      setError((err) => ({ ...err, moviesError: true }));
+
       console.log(err);
     }
   }
@@ -108,7 +113,7 @@ function App() {
         for (const key in each) params.append(key, each[key]);
       });
       params.append("with_text_query", query);
-      params.append("primary_release_year", selectedYears[0].toString());
+      params.append("primary_release_year", "2012");
 
       params.append(
         "with_genres",
@@ -121,15 +126,30 @@ function App() {
 
       data = await result.json();
       setMoviesData([data.results]);
+      params.delete("primary_release_year");
+      params.append("primary_release_year", "2013");
+      const result2 = await fetch(`${BASE_URL}?${params}`);
+      data = await result2.json();
+      setMoviesData((c) => [...c, data.results]);
     } catch (err) {
       console.log(err);
     }
   }
-  useEffect(() => { 
-    fetchData();
-    setSelectedYears([2012]);
+  // Debounce search query
+  useEffect(() => {
+    const timerId = setTimeout(() => {
+      setDebouncedQuery(query);
+    }, 500);
+    return () => {
+      clearTimeout(timerId);
+    };
+  }, [query]);
 
-  }, [query, selectedGenre]);
+  useEffect(() => {
+    setSelectedYears([2012]);
+    fetchData();
+
+  }, [debouncedQuery, selectedGenre]);
 
   useEffect(() => {
     fetchScrollData();
@@ -147,10 +167,12 @@ function App() {
         // currentScrollPosition.current = window.scrollY;
         //window.scrollTo(0,scrollPosition)
       } else if (
-        window.innerHeight + window.scrollY + 50 >=
+        window.innerHeight + window.scrollY >=
         document.body.offsetHeight
       ) {
+        
         handleScroll("DOWN");
+
       }
       // window.scrollTo(
       //   0,
@@ -159,7 +181,8 @@ function App() {
     });
   }, []);
   return (
-    <div className="App">
+    <div className={`App ${scrollDirection === 'UP' ? 'scroll-up' : ''}`}>
+      <header className="header">
       <Logo />
       {!error.genreError ? (
         <HorizontalScroll
@@ -171,12 +194,13 @@ function App() {
         <div>Failed to fetch Genres</div>
       )}
       <SearchBox query={query} setQuery={setQuery} />
-
-      {moviesData.length === 0 ? (
-        <div>No Data found</div>
+</header>
+<body className="body">
+   {moviesData.length===0? (
+        <div>Oops! Seems like you're out of luck.</div>
       ) : (
         <div className="movies-container" ref={containerRef}>
-          {moviesData.length &&
+          {
             moviesData.map((data: Record<string, any>[]) => {
               return data.length ? (
                 <MoviesList data={data} />
@@ -186,6 +210,9 @@ function App() {
             })}
         </div>
       )}
+</body>
+{endOfList&&<footer className="footer"><h1>There's always a next year</h1></footer>}
+     
     </div>
   );
 }
