@@ -51,7 +51,6 @@ const HorizontalScroll: React.FC<HorizontalScrollProps> = ({
           }`}
           onClick={() => handleClick(item.id)}
           key={item.id}
-          style={{ margin: "5px", padding: "10px" }}
         >
           {item.name}
         </button>
