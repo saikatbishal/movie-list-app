@@ -8,11 +8,3 @@ const result = await fetch(url, options).then(res => res.json())
 .catch(err => console.error('error:' + err));
 return result
 }
-
-/**
- * API FILTERS
- * page=1
- * primary_release_year=2012
- * sort_by=popularity.desc
- * vote_count_gte = 100 
- */

@@ -1,15 +1,15 @@
 import { useState } from "react";
 import { IMAGE_BASE_URL } from "../constants/base_urls";
 import "./movieCard.css";
+import { MovieCardType } from "../types/movieCardType";
 const MovieCard = ({
+  key,
   title,
   poster_path,
   release_date,
   overview,
-  backdrop_path,
   vote_average,
-  vote_count,
-}: any) => {
+}: MovieCardType) => {
   const [isHovered, setIsHovered] = useState<boolean>(false);
 
   const handleMouseEnter = () => {
@@ -28,12 +28,13 @@ const MovieCard = ({
       className="card-parent"
       onMouseEnter={handleMouseEnter}
       onMouseLeave={handleMouseLeave}
-      role="menuitem"
     >
       <img
         src={`${IMAGE_BASE_URL}${poster_path}`}
         alt={title}
+        
       />
+      
 
       <div className={`title-card`}>
         <div>
@@ -46,7 +47,7 @@ const MovieCard = ({
       {isHovered && (
         <div className="description-card">
             <h4>Description:</h4>
-            <p>{overview.slice(0,100)}</p>
+            <p>{overview.slice(0,200)}...</p>
         </div>
       )}
     </div>
