@@ -8,7 +8,7 @@ import MoviesList from "./moviesList/MoviesList";
 import SearchBox from "./searchBox/SearchBox";
 import { moviesListType, dataType } from "./types/moviesListType";
 import Logo from "./Logo/Logo";
-
+import ErrorMessages from "./errorMessages/ErrorMessages";
 const API_KEY = process.env.REACT_APP_API_KEY;
 
 function App() {
@@ -87,7 +87,7 @@ function App() {
       if (scrollDirection === "UP") {
         if (data.results.length) {
           setMoviesData((c) => [data.results, ...c]);
-          window.scrollTo(0, 500);
+          window.scrollTo(0, 600);
         }
       } else if (scrollDirection === "DOWN") {
         if (data.results.length) setMoviesData((c) => [...c, data.results]);
@@ -119,6 +119,7 @@ function App() {
       setMoviesData([data.results]);
     } catch (err) {
       console.log(err);
+      setError((err) => ({ ...err, moviesError: true }));
     }
   }
   // Debounce search query
@@ -164,20 +165,20 @@ function App() {
             items={genreList}
           />
         ) : (
-          <div>Failed to fetch Genres</div>
+          <ErrorMessages header="Failed to fetch Genres"/>
         )}
         <SearchBox query={query} setQuery={setQuery} />
       </header>
       <body className="body">
         {moviesData.length === 0 ? (
-          <div>Oops! Seems like you're out of luck.</div>
+          <ErrorMessages header="Oops! Seems like you're out of luck."/>
         ) : (
           <div className="movies-container" ref={containerRef}>
             {moviesData.map((data: Record<string, any>[]) => {
               return data.length ? (
                 <MoviesList data={data} />
               ) : (
-                <div>Seems we do not have the movie you are searching for</div>
+                <ErrorMessages header="Seems we do not have the movie you are searching for" type="error"/>
               );
             })}
           </div>
@@ -185,7 +186,7 @@ function App() {
       </body>
       {endOfList && (
         <footer className="footer">
-          <h1>There's always a next year</h1>
+          <ErrorMessages header="There's always a next year" type="info"/>
         </footer>
       )}
     </div>

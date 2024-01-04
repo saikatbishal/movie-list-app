@@ -9,8 +9,8 @@ const MoviesList =(props: movieListPropType) => {
     <div>
       <h1 className="movie-list__heading">Best Movies of {data[0].release_date.substring(0,4)}</h1>
       <div className="movie-list">
-        {data.map((item: Record<string, any>) => {
-          return <MovieCard key={item.id} {...item} />;
+        {data?.map((item: Record<string, any>) => {
+          return <MovieCard title={item.title} poster_path={item.poster_path} release_date={item.release_date} overview={item.overview} vote_average={item.vote_average} key={item.id} />;
         })}
       </div>
     </div>
