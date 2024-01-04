@@ -9,7 +9,9 @@
 * Typescript
 
 ## How to setup
-
+* install git [here](https://git-scm.com/downloads) if you haven't already
+* install node [here](https://nodejs.org/dist/v20.10.0/node-v20.10.0.pkg) if you haven't already
+  type `npm -v`, `node -v` and `git -v` in your terminal to check if they were installed correctly.(checks the versions of npm, node and git respectively)
 * Fork the repo.
 * go to your command line and type `git clone <your-repo-link.git> `
 * once the repo is cloned to your local, go to the **main** branch
